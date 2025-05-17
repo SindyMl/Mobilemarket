@@ -15,8 +15,6 @@ import org.json.JSONObject;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText usernameEditText, emailEditText, passwordEditText;
-    private Button registerButton;
-    private TextView loginLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,8 +24,8 @@ public class RegisterActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.username);
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
-        registerButton = findViewById(R.id.register_button);
-        loginLink = findViewById(R.id.login_link);
+        Button registerButton = findViewById(R.id.register_button);
+        TextView loginLink = findViewById(R.id.login_link);
 
         registerButton.setOnClickListener(v -> register());
         loginLink.setOnClickListener(v -> finish());

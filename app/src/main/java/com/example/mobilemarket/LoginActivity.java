@@ -23,10 +23,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        usernameEditText = findViewById(R.id.username);
-        passwordEditText = findViewById(R.id.password);
-        loginButton = findViewById(R.id.login_button);
-        registerLink = findViewById(R.id.register_link);
+        // Explicitly cast findViewById results to resolve ambiguity
+        usernameEditText = (EditText) findViewById(R.id.username);
+        passwordEditText = (EditText) findViewById(R.id.password);
+        loginButton = (Button) findViewById(R.id.login_button);
+        registerLink = (TextView) findViewById(R.id.register_link);
 
         loginButton.setOnClickListener(v -> login());
         registerLink.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
