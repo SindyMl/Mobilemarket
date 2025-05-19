@@ -47,7 +47,8 @@ public class RegisterActivity extends AppCompatActivity {
             requestBody.put("email", email);
             requestBody.put("password", password);
         } catch (Exception e) {
-            e.printStackTrace();
+            Toast.makeText(this, "Error preparing request", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -55,17 +56,26 @@ public class RegisterActivity extends AppCompatActivity {
         JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, requestBody,
                 response -> {
                     try {
+                        if (!response.has("success")) {
+                            Toast.makeText(this, "Invalid server response", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         if (response.getBoolean("success")) {
                             Toast.makeText(this, "Registration successful! Please login.", Toast.LENGTH_SHORT).show();
                             finish();
                         } else {
-                            Toast.makeText(this, response.getString("message"), Toast.LENGTH_SHORT).show();
+                            String message = response.optString("message", "Registration failed");
+                            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                         }
                     } catch (Exception e) {
+                        Toast.makeText(this, "Error processing response", Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                     }
                 },
-                error -> Toast.makeText(this, "Registration failed: " + error.getMessage(), Toast.LENGTH_SHORT).show());
+                error -> {
+                    String errorMsg = error.getMessage() != null ? error.getMessage() : "Network error";
+                    Toast.makeText(this, "Registration failed: " + errorMsg, Toast.LENGTH_SHORT).show();
+                });
         queue.add(request);
     }
 }

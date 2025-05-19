@@ -1,78 +1,128 @@
 package com.example.mobilemarket;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import org.json.JSONObject;
+import java.io.IOException;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity {
+    private static final String TAG = "LoginActivity";
+    private static final String PREFS_NAME = "auth";
+    private static final String KEY_TOKEN = "token";
+    private static final String KEY_USER_ID = "user_id";
     private EditText usernameEditText, passwordEditText;
     private Button loginButton;
-    private TextView registerLink;
+    private OkHttpClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Explicitly cast findViewById results to resolve ambiguity
-        usernameEditText = (EditText) findViewById(R.id.username);
-        passwordEditText = (EditText) findViewById(R.id.password);
-        loginButton = (Button) findViewById(R.id.login_button);
-        registerLink = (TextView) findViewById(R.id.register_link);
+        // Initialize UI components
+        usernameEditText = findViewById(R.id.username);
+        passwordEditText = findViewById(R.id.password);
+        loginButton = findViewById(R.id.login_button);
+        client = new OkHttpClient();
 
-        loginButton.setOnClickListener(v -> login());
-        registerLink.setOnClickListener(v -> startActivity(new Intent(LoginActivity.this, RegisterActivity.class)));
+        // Set login button click listener
+        loginButton.setOnClickListener(v -> performLogin());
     }
 
-    private void login() {
+    private void performLogin() {
         String username = usernameEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        JSONObject requestBody = new JSONObject();
+        // Create JSON request body
         try {
-            requestBody.put("username", username);
-            requestBody.put("password", password);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            JSONObject json = new JSONObject();
+            json.put("username", username);
+            json.put("password", password);
+            RequestBody body = RequestBody.create(
+                    json.toString(),
+                    MediaType.parse("application/json; charset=utf-8")
+            );
 
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = "https://lamp.ms.wits.ac.za/home/s2669198/login.php";
-        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, requestBody,
-                response -> {
+            Log.d(TAG, "Request body: " + json.toString());
+
+            // Build HTTP request (replace with your API endpoint)
+            Request request = new Request.Builder()
+                    .url("https://lamp.ms.wits.ac.za/home/s2669198/login.php") // Update with actual endpoint
+                    .post(body)
+                    .build();
+
+            // Execute request asynchronously
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    runOnUiThread(() -> Toast.makeText(
+                            LoginActivity.this,
+                            "Login failed: " + e.getMessage(),
+                            Toast.LENGTH_SHORT
+                    ).show());
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    String responseBody = response.body().string();
                     try {
-                        if (response.getBoolean("success")) {
-                            String token = response.getString("token");
-                            int userId = response.getInt("user_id");
-                            getSharedPreferences("auth", MODE_PRIVATE)
-                                    .edit()
-                                    .putString("token", token)
-                                    .putInt("user_id", userId)
-                                    .apply();
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                            finish();
+                        JSONObject jsonResponse = new JSONObject(responseBody);
+                        boolean success = jsonResponse.getBoolean("success");
+                        if (success) {
+                            String token = jsonResponse.getString("token");
+                            int userId = jsonResponse.getInt("user_id");
+
+                            Log.d(TAG, "Response: " + responseBody);
+                            Log.d(TAG, "Token: " + token + ", UserID: " + userId);
+
+                            // Store token and user ID in SharedPreferences
+                            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString(KEY_TOKEN, token);
+                            editor.putInt(KEY_USER_ID, userId);
+                            editor.apply();
+
+                            // Navigate to MainActivity and clear activity stack
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                            finish(); // Close LoginActivity
                         } else {
-                            Toast.makeText(this, response.getString("message"), Toast.LENGTH_SHORT).show();
+                            runOnUiThread(() -> Toast.makeText(
+                                    LoginActivity.this,
+                                    "Invalid credentials",
+                                    Toast.LENGTH_SHORT
+                            ).show());
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        runOnUiThread(() -> Toast.makeText(
+                                LoginActivity.this,
+                                "Error parsing response",
+                                Toast.LENGTH_SHORT
+                        ).show());
                     }
-                },
-                error -> Toast.makeText(this, "Login failed: " + error.getMessage(), Toast.LENGTH_SHORT).show());
-        queue.add(request);
+                }
+            });
+        } catch (Exception e) {
+            Toast.makeText(this, "Error creating request", Toast.LENGTH_SHORT).show();
+        }
     }
 }

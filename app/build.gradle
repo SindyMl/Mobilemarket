@@ -44,5 +44,9 @@ dependencies {
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
     implementation libs.volley
-    implementation libs.appcompat // Or latest version
+    implementation libs.appcompat // Or latest
+    implementation libs.navigation.fragment.v290
+    implementation libs.navigation.ui.v290
+    implementation libs.okhttp
+    implementation libs.fragment
 }
