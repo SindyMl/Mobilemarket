@@ -3,6 +3,8 @@ package com.example.mobilemarket;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -14,6 +16,7 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 
@@ -24,6 +27,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
     private Button addItemButton;
     private RequestQueue requestQueue;
     private ArrayList<String> itemsList;
+    private  ArrayList<JSONObject>itemsObjects;
     private ArrayAdapter<String> adapter;
 
     @Override
@@ -38,6 +42,7 @@ public class BrowseItemsActivity extends AppCompatActivity {
         // Initialize Volley and list
         requestQueue = Volley.newRequestQueue(this);
         itemsList = new ArrayList<>();
+        itemsObjects=new ArrayList<>();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, itemsList);
         itemsListView.setAdapter(adapter);
 
@@ -46,6 +51,25 @@ public class BrowseItemsActivity extends AppCompatActivity {
             startActivity(new Intent(this, PostItemsActivity.class));
             finish();
         });
+
+        itemsListView.setOnItemClickListener((parent, view, position, id) -> {
+            JSONObject selectedItem = null;
+            try {
+
+                 selectedItem=itemsObjects.get(position);
+                Intent intent = new Intent(BrowseItemsActivity.this, DetailsActivity.class);
+                intent.putExtra("item_id",selectedItem.getInt("item_id"));
+                intent.putExtra("name",selectedItem.getString( "name"));
+                intent.putExtra("description",selectedItem.getString( "description"));
+                intent.putExtra("price",selectedItem.getString("price"));
+
+                startActivity(intent);
+            } catch (Exception e) {
+                Toast.makeText(this, "Error opening item", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "Item click error: " + e.getMessage());
+            }
+        });
+
 
         // Fetch items
         fetchItems();
@@ -68,6 +92,8 @@ public class BrowseItemsActivity extends AppCompatActivity {
             }
             return false;
         });
+
+
     }
 
     private void fetchItems() {
@@ -76,8 +102,11 @@ public class BrowseItemsActivity extends AppCompatActivity {
                     try {
                         Log.d(TAG, "Response: " + response.toString());
                         itemsList.clear();
+                        itemsObjects.clear();
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject item = response.getJSONObject(i);
+                            itemsObjects.add(item);
+
                             String name = item.getString("name");
                             String description = item.getString("description");
                             String price = item.getString("price");
