@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -28,17 +29,35 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finish(); // Close MainActivity
+            finish();
             return;
         }
 
         // Token exists, proceed with MainActivity
-        Log.d(TAG, "Token found, loading activity_main.xml");
         setContentView(R.layout.activity_main);
 
         // Set up logout button
         Button logoutButton = findViewById(R.id.logout_button);
         logoutButton.setOnClickListener(v -> performLogout());
+
+        // Set up bottom navigation
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.nav_home) {
+                return true;
+            } else if (itemId == R.id.nav_browse) {
+                startActivity(new Intent(this, BrowseItemsActivity.class));
+                finish();
+                return true;
+            } else if (itemId == R.id.nav_post) {
+                startActivity(new Intent(this, PostItemsActivity.class));
+                finish();
+                return true;
+            }
+            return false;
+        });
     }
 
     private void performLogout() {

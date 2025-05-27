@@ -29,6 +29,12 @@
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
+        <activity
+            android:name=".BrowseItemsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PostItemsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

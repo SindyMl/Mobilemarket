@@ -11,13 +11,23 @@
         android:padding="16dp"
         android:layout_above="@id/bottom_navigation">
 
-        <Button
-            android:id="@+id/logout_button"
+        <ListView
+            android:id="@+id/itemsListView"
             android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp" />
+
+        <Button
+            android:id="@+id/addItemButton"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Logout"
+            android:text="Add New Item"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
             android:backgroundTint="#FF4081"
-            android:textColor="@color/black"
+            android:textColor="#FFFFFF"
             android:padding="12dp" />
     </LinearLayout>
 
@@ -27,14 +37,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:gravity="center"
-        android:text="Hii"
-        android:textColor="@color/black"
-        android:textSize="24sp" />
-
 </RelativeLayout>

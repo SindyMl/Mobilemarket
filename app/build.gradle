@@ -49,4 +49,5 @@ dependencies {
     implementation libs.navigation.ui.v290
     implementation libs.okhttp
     implementation libs.fragment
+    implementation libs.material.v190
 }
