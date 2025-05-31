@@ -59,6 +59,7 @@ public class DetailsActivity extends AppCompatActivity {
             finish();
             return;
         }
+        fetchSellerUsername(itemId);
 
         SharedPreferences prefs = getSharedPreferences("auth", MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
