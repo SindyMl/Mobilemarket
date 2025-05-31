@@ -1,0 +1,18 @@
+<?php
+$username = "s2669198";
+$password = "s2669198";
+$database = "d2669198";
+$link = mysqli_connect("127.0.0.1", $username, $password, $database);
+$id=isset($_GET['id']) ?$_GET['id'] :1;
+$resu
+
+/* Select queries return a resultset */
+if ($result = mysqli_query($link, "select * from products")) {
+    while ($row = $result->fetch_assoc()) {
+        $output[] = $row;
+    }
+}
+
+mysqli_close($link);
+echo json_encode($output);
+?>
