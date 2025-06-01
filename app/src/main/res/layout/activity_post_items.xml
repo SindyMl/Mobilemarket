@@ -51,7 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="Price"
+                android:hint="Price(e.g 26.50 NOT R26.50 or $26,50)"
                 android:inputType="numberDecimal|numberSigned"
                 android:minHeight="48dp"
                 android:backgroundTint="#FFFFFF"
