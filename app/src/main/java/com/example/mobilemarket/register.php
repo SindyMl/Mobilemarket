@@ -22,7 +22,7 @@ $stmt = $conn->prepare("INSERT INTO users (username, password_hash, email) VALUE
 $stmt->bind_param("sss", $username, $password_hash, $email);
 
 if ($stmt->execute()) {
-    echo json_encode(['success' => true]);
+    echo json_encode(['success' => true, 'username' => $username]);
 } else {
     echo json_encode(['success' => false, 'message' => 'Username or email already exists']);
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import org.json.JSONObject;
@@ -23,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "auth";
     private static final String KEY_TOKEN = "token";
     private static final String KEY_USER_ID = "user_id";
+    private static final String KEY_USERNAME = "username";
     private EditText usernameEditText, passwordEditText;
     private Button loginButton;
     private OkHttpClient client;
@@ -36,10 +38,17 @@ public class LoginActivity extends AppCompatActivity {
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.login_button);
+        TextView registerLink = findViewById(R.id.register_link);
         client = new OkHttpClient();
 
         // Set login button click listener
         loginButton.setOnClickListener(v -> performLogin());
+
+        // Set register link click listener
+        registerLink.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void performLogin() {
@@ -63,9 +72,9 @@ public class LoginActivity extends AppCompatActivity {
 
             Log.d(TAG, "Request body: " + json.toString());
 
-            // Build HTTP request (replace with your API endpoint)
+            // Build HTTP request
             Request request = new Request.Builder()
-                    .url("https://lamp.ms.wits.ac.za/home/s2669198/login.php") // Update with actual endpoint
+                    .url("https://lamp.ms.wits.ac.za/home/s2669198/login.php")
                     .post(body)
                     .build();
 
@@ -89,22 +98,24 @@ public class LoginActivity extends AppCompatActivity {
                         if (success) {
                             String token = jsonResponse.getString("token");
                             int userId = jsonResponse.getInt("user_id");
+                            String usernameFromServer = jsonResponse.optString("username", username); // Fallback to input if not returned
 
                             Log.d(TAG, "Response: " + responseBody);
-                            Log.d(TAG, "Token: " + token + ", UserID: " + userId);
+                            Log.d(TAG, "Token: " + token + ", UserID: " + userId + ", Username: " + usernameFromServer);
 
-                            // Store token and user ID in SharedPreferences
+                            // Store token, user ID, and username in SharedPreferences
                             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
                             SharedPreferences.Editor editor = prefs.edit();
                             editor.putString(KEY_TOKEN, token);
                             editor.putInt(KEY_USER_ID, userId);
+                            editor.putString(KEY_USERNAME, usernameFromServer);
                             editor.apply();
 
                             // Navigate to MainActivity and clear activity stack
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
-                            finish(); // Close LoginActivity
+                            finish();
                         } else {
                             runOnUiThread(() -> Toast.makeText(
                                     LoginActivity.this,

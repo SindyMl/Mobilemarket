@@ -35,6 +35,9 @@
         <activity
             android:name=".PostItemsActivity"
             android:exported="false" />
+        <activity
+            android:name=".DetailsActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

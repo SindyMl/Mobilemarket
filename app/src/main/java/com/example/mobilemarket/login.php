@@ -23,7 +23,7 @@ $result = $stmt->get_result();
 if ($row = $result->fetch_assoc()) {
     if (password_verify($password, $row['password_hash'])) {
         $token = bin2hex(random_bytes(16)); // Simple token (use JWT in production)
-        echo json_encode(['success' => true, 'token' => $token, 'user_id' => $row['user_id']]);
+        echo json_encode(['success' => true, 'token' => $token, 'user_id' => $row['user_id'], 'username' => $username]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid credentials']);
     }

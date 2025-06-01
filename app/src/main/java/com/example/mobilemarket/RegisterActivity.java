@@ -1,6 +1,7 @@
 package com.example.mobilemarket;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +16,8 @@ import org.json.JSONObject;
 
 public class RegisterActivity extends AppCompatActivity {
     private EditText usernameEditText, emailEditText, passwordEditText;
+    private static final String PREFS_NAME = "auth";
+    private static final String KEY_USERNAME = "username";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +64,15 @@ public class RegisterActivity extends AppCompatActivity {
                             return;
                         }
                         if (response.getBoolean("success")) {
+                            String usernameFromServer = response.optString("username", username); // Fallback to input if not returned
                             Toast.makeText(this, "Registration successful! Please login.", Toast.LENGTH_SHORT).show();
+
+                            // Store username in SharedPreferences
+                            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString(KEY_USERNAME, usernameFromServer);
+                            editor.apply();
+
                             finish();
                         } else {
                             String message = response.optString("message", "Registration failed");
