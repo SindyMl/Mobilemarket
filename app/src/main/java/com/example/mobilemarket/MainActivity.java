@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_TOKEN = "token";
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_USERNAME = "username";
-    private static final String GET_TOP_ITEMS_URL = "https://lamp.ms.wits.ac.za/home/s2669198/get_items.php?top=3";
+    private static final String GET_TOP_ITEMS_URL = "https://lamp.ms.wits.ac.za/home/s2669198/get_items.php?top=5"; // Updated to fetch top 5
 
     private ActivityMainBinding binding;
     private RequestQueue requestQueue;
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Set up welcome text with username
         String username = prefs.getString(KEY_USERNAME, "User");
+        Log.d(TAG, "Retrieved username from SharedPreferences: " + username);
         binding.welcomeText.setText("Welcome, " + username);
 
         // Set up RecyclerView for top-rated items
@@ -66,7 +67,10 @@ public class MainActivity extends AppCompatActivity {
         fetchTopRatedItems();
 
         // Set up logout button
-        binding.logoutButton.setOnClickListener(v -> performLogout());
+        binding.logoutButton.setOnClickListener(v -> {
+            Log.d(TAG, "Logout button clicked");
+            performLogout();
+        });
 
         // Set up bottom navigation
         binding.bottomNavigation.setSelectedItemId(R.id.nav_home);
@@ -101,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         Log.d(TAG, "Raw response: " + response.toString());
                         boolean success = response.optBoolean("success", false);
+                        Log.d(TAG, "API success: " + success);
                         if (!success) {
                             String message = response.optString("message", "Failed to fetch top items");
                             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
@@ -109,8 +114,9 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         JSONArray items = response.getJSONArray("data");
+                        Log.d(TAG, "Number of items in response: " + items.length());
                         topItemList.clear();
-                        for (int i = 0; i < items.length() && i < 3; i++) {
+                        for (int i = 0; i < items.length() && i < 5; i++) { // Updated to fetch top 5
                             JSONObject item = items.getJSONObject(i);
                             int itemId = item.optInt("item_id", 0);
                             String name = item.optString("name", "Unknown");
@@ -119,7 +125,9 @@ public class MainActivity extends AppCompatActivity {
                             double rating = item.optDouble("rating", 0.0);
                             String datePosted = item.optString("date_posted", "");
                             topItemList.add(new Item(itemId, name, description, price, rating, datePosted));
+                            Log.d(TAG, "Added item: " + name);
                         }
+                        Log.d(TAG, "Total items in topItemList: " + topItemList.size());
                         topItemAdapter.notifyDataSetChanged();
                         if (topItemList.isEmpty()) {
                             Toast.makeText(this, "No top-rated items found", Toast.LENGTH_SHORT).show();
@@ -150,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void performLogout() {
+        Log.d(TAG, "Performing logout");
         // Clear token and user ID from SharedPreferences
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();

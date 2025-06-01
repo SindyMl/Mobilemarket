@@ -17,11 +17,23 @@
             android:layout_marginLeft="16dp"
             android:textColor="#FFFFFF" />
 
+        <TextView
+            android:id="@+id/topItemsHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Here is our top 5 rated items!"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_below="@id/welcomeText"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="16dp"
+            android:textColor="#FFFFFF" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/topRatedRecyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/welcomeText"
+            android:layout_below="@id/topItemsHeader"
             android:layout_marginTop="16dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
